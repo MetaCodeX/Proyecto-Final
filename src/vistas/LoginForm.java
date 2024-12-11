@@ -1,9 +1,14 @@
 package vistas;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import javax.swing.JOptionPane;
 import modelo.EntidadVendedor;
 import modeloDAO.VendedorDAO;
+import config.Conexion;
 
 public class LoginForm extends javax.swing.JFrame {
 
@@ -110,33 +115,53 @@ public class LoginForm extends javax.swing.JFrame {
         validar();
     }//GEN-LAST:event_btnIngresarActionPerformed
     public void validar() {
-        String dni = "";
-        char[] token = txtPass.getPassword();
         String user = txtUser.getText().trim();
+        String dni = new String(txtPass.getPassword());
         
-        if (user.isEmpty() || token.length == 0) {
+        if (user.isEmpty() || dni.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor ingrese usuario y contraseña", 
                                         "Error de validación", JOptionPane.WARNING_MESSAGE);
             txtUser.requestFocus();
             return;
         }
         
-        dni = new String(token);
-        
-        ev = vdao.ValidarVendedor(dni, user);
-        
-        if (ev != null && ev.getUser() != null && ev.getDni() != null) {
-            Principal p = new Principal(ev);
-            p.setVisible(true);
-            dispose();
-        } else {
+        try {
+            // Modificamos la consulta para usar la tabla vendedor
+            String sql = "SELECT * FROM vendedor WHERE User=? AND Dni=? AND Estado='1'";
+            Connection con = new Conexion().Conectar();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, user);
+            ps.setString(2, dni);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                ev.setId(rs.getInt("IdVendedor"));
+                ev.setUser(rs.getString("User"));
+                ev.setDni(rs.getString("Dni"));
+                ev.setNom(rs.getString("Nombres"));
+                
+                Principal p = new Principal(ev);
+                p.setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Usuario o contraseña incorrectos", 
+                    "Error de autenticación", 
+                    JOptionPane.ERROR_MESSAGE);
+                txtUser.setText("");
+                txtPass.setText("");
+                txtUser.requestFocus();
+            }
+            
+            rs.close();
+            ps.close();
+            con.close();
+            
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, 
-                "Usuario o contraseña incorrectos", 
-                "Error de autenticación", 
+                "Error al conectar con la base de datos: " + e.getMessage(), 
+                "Error de conexión", 
                 JOptionPane.ERROR_MESSAGE);
-            txtUser.setText("");
-            txtPass.setText("");
-            txtUser.requestFocus();
         }
     }
 
