@@ -22,7 +22,7 @@ public class VentasDAO {
                 + "ON v.IdEmpleado=e.IdEmpleado\n"
                 + "where IdVentas=" + idVenta;
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -49,7 +49,7 @@ public class VentasDAO {
                 + "ON dv.IdProducto=p.IdProducto\n"
                 + "where dv.IdVentas=" + idVenta;
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             int contador = 0;
@@ -77,7 +77,7 @@ public class VentasDAO {
                 + "ON V.IdCliente=c.IdCliente\n"
                 + "WHERE v.FechaVentas BETWEEN ? AND ?";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, fecInicio);
             ps.setString(2, fecFinal);
@@ -105,7 +105,7 @@ public class VentasDAO {
         String serie = "";
         String sql = "select max(NumeroSerie) from ventas";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -121,7 +121,7 @@ public class VentasDAO {
         String idv = "";
         String sql = "select max(IdVentas) from ventas";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -137,7 +137,7 @@ public class VentasDAO {
         int idv = 0;
         String sql = "select max(IdVentas) from ventas";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -151,21 +151,39 @@ public class VentasDAO {
 
     public int GuardarVentas(Ventas v) {
         int r = 0;
-        String sql = "insert into Ventas(IdCliente, IdEmpleado,NumeroSerie,FechaVentas,Monto,Estado)values(?,?,?,?,?,?)";
+        Connection con = null;
+        PreparedStatement ps = null;
+        
         try {
-            Connection con = Conexion.ConectarDB();
-            PreparedStatement ps = con.prepareStatement(sql);
+            con = Conexion.Conectar();
+            if (con == null) {
+                System.out.println("Error: No se pudo conectar a la base de datos");
+                return 0;
+            }
+            
+            String sql = "insert into ventas(IdVentas, IdCliente, IdVendedor, NumeroSerie, FechaVentas, Monto, Estado) " +
+                        "values(null, ?, ?, ?, ?, ?, ?)";
+            
+            ps = con.prepareStatement(sql);
             ps.setInt(1, v.getIdCliente());
             ps.setInt(2, v.getIdVendedor());
             ps.setString(3, v.getSerie());
             ps.setString(4, v.getFecha());
             ps.setDouble(5, v.getMonto());
             ps.setString(6, v.getEstado());
+            
             r = ps.executeUpdate();
+            
         } catch (SQLException e) {
-            System.out.println("Error:" + e);
+            System.out.println("Error al guardar venta: " + e);
+            return 0;
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar PreparedStatement: " + e);
+            }
         }
-
         return r;
     }
 
@@ -173,7 +191,7 @@ public class VentasDAO {
         int r = 0;
         String sql = "insert into detalle_ventas(IdVentas,IdProducto,Cantidad,PrecioVenta)values(?,?,?,?)";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, dv.getIdVentas());
             ps.setInt(2, dv.getIdProducto());

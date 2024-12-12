@@ -1,41 +1,44 @@
 package config;
 
-
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import java.sql.Connection;
 
 public class Conexion {
-
-    Connection con;
-    static String url = "jdbc:mysql://bcyboql1tlvzoxbokcat-mysql.services.clever-cloud.com:3306/bcyboql1tlvzoxbokcat?useSSL=false";
-    static String user = "u2z3kn52jzm4hpoo";
-    static String pass = "TROUdOLH7FU3rKe3LhuW";
-
-    public Connection Conectar() {
+    private static final String URL = "jdbc:mysql://bcyboql1tlvzoxbokcat-mysql.services.clever-cloud.com:3306/bcyboql1tlvzoxbokcat?useSSL=false";
+    private static final String USER = "u2z3kn52jzm4hpoo";
+    private static final String PASS = "TROUdOLH7FU3rKe3LhuW";
+    
+    // Mantener una única conexión
+    private static Connection conexion = null;
+    
+    // Volvemos al método original Conectar()
+    public static Connection Conectar() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(url, user, pass);
-            System.out.println("Conexión exitosa");
-        } catch (ClassNotFoundException | SQLException e) {
-            System.err.println("Error de Conexion a Base de Datos : " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Error de conexión: " + e.getMessage());
-        }
-        return con;
-    }
-
-    public static Connection ConectarDB() {
-        Connection conex = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conex = DriverManager.getConnection(url, user, pass);
-            if (conex != null) {
-                System.out.println("Conexión exitosa a la base de datos");
+            if (conexion == null || conexion.isClosed()) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                conexion = DriverManager.getConnection(URL, USER, PASS);
+                System.out.println("Conexión exitosa");
             }
+            return conexion;
         } catch (ClassNotFoundException | SQLException e) {
-            System.err.println("Error de Conexión a Base de Datos: " + e.getMessage());
+            System.err.println("Error de Conexión: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error de conexión: " + e.getMessage());
+            return null;
         }
-        return conex;
+    }
+    
+    // Método para cerrar la conexión
+    public static void closeConnection() {
+        try {
+            if (conexion != null && !conexion.isClosed()) {
+                conexion.close();
+                conexion = null;
+                System.out.println("Conexión cerrada");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar la conexión: " + e.getMessage());
+        }
     }
 }

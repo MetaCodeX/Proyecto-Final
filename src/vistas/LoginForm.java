@@ -126,9 +126,8 @@ public class LoginForm extends javax.swing.JFrame {
         }
         
         try {
-            // Modificamos la consulta para usar la tabla vendedor
             String sql = "SELECT * FROM vendedor WHERE User=? AND Dni=? AND Estado='1'";
-            Connection con = new Conexion().Conectar();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, user);
             ps.setString(2, dni);

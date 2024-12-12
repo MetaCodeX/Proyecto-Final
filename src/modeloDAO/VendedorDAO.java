@@ -19,7 +19,7 @@ public class VendedorDAO {
         try {
             PreparedStatement ps;
             ResultSet rs;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 if (con != null) {
                     ps = con.prepareStatement(sql);
                     ps.setString(1, dni);
@@ -52,7 +52,7 @@ public class VendedorDAO {
         try {
             PreparedStatement ps;
             ResultSet rs;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 rs = ps.executeQuery();
                 while (rs.next()) {
@@ -79,7 +79,7 @@ public class VendedorDAO {
         try {
             PreparedStatement ps;
             ResultSet rs;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 rs = ps.executeQuery();
                 while (rs.next()) {
@@ -106,7 +106,7 @@ public class VendedorDAO {
         String sql = "insert into empleado(Dni,Nombres,Telefono,Estado,User)values(?,?,?,?,?)";
         try {
             PreparedStatement ps;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 //ResultSet rs = ps.executeQuery();
                 ps.setString(1, v.getDni());
@@ -128,7 +128,7 @@ public class VendedorDAO {
         String sql = "update empleado set Dni=?, Nombres=?,Telefono=?,Estado=? Where IdEmpleado=?";
         try {
             PreparedStatement ps;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 //ResultSet rs = ps.executeQuery();
                 ps.setString(1, v.getDni());
@@ -155,7 +155,7 @@ public class VendedorDAO {
         String sql = "delete from empleado where IdEmpleado=?";
         try {
             PreparedStatement ps;
-            try ( Connection con = Conexion.ConectarDB()) {
+            try ( Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setInt(1, id);
                 ps.executeUpdate();

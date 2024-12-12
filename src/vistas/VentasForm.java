@@ -6,7 +6,9 @@ import java.awt.Component;
 import java.awt.Event;
 import java.awt.Image;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -63,8 +65,8 @@ public final class VentasForm extends javax.swing.JInternalFrame {
         txtCodCliente.requestFocus();
     }
     void fecha() {
-        Fecha fe = new Fecha();
-        txtFecha.setText(fe.Fecha());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        txtFecha.setText(sdf.format(new Date()));
     }
 
     void generarSerie() {
@@ -525,18 +527,67 @@ public final class VentasForm extends javax.swing.JInternalFrame {
         agregarProducto();
     }//GEN-LAST:event_btnAgregarActionPerformed
 
-    private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarActionPerformed
-        if (txtTotalPagar.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Debe ingresar Datos");
-        } else {
-            guardarVenta();
+    private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            // Validar que haya un cliente seleccionado
+            if (txtCliente.getText().isEmpty() || txtCodCliente.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Debe seleccionar un cliente", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Validar que haya productos en la tabla
+            if (TablaDetalle.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "Agregue productos a la venta", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // AGREGAR AQUÍ LOS SYSTEM.OUT.PRINTLN
+            System.out.println("ID Cliente: " + cliente.getId());
+            System.out.println("ID Vendedor: " + vendedor.getId());
+            System.out.println("Serie: " + txtSerie.getText());
+            System.out.println("Fecha: " + txtFecha.getText());
+            System.out.println("Monto: " + txtTotalPagar.getText());
+
+            // Guardar la venta primero
+            v.setIdCliente(cliente.getId());
+            v.setIdVendedor(vendedor.getId());
+            v.setSerie(txtSerie.getText());
+            v.setFecha(txtFecha.getText());
+            v.setMonto(Double.parseDouble(txtTotalPagar.getText()));
+            v.setEstado("1");
+
+            // Guardar la venta principal
+            int res = vdao.GuardarVentas(v);
+            if (res <= 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error al guardar la venta", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Si la venta se guardó correctamente, guardar el detalle
             guardarDetalle();
-            actualizarStock();
-            imprimir();
-            nuevo();
-            generarSerie();
+            
+            JOptionPane.showMessageDialog(this, "Venta Realizada con Éxito!");
+            
+            // Limpiar la tabla y campos después de una venta exitosa
+            LimpiarTabla();
+            NuevoVenta();
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al generar la venta: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnGenerarActionPerformed
+    }
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         nuevo();
@@ -627,17 +678,56 @@ public final class VentasForm extends javax.swing.JInternalFrame {
     }
 
     void guardarDetalle() {
-        String idv = vdao.IdVentas();
-        int idve = Integer.parseInt(idv);
-        for (int i = 0; i < TablaDetalle.getRowCount(); i++) {
-            int idProdDet = Integer.parseInt(TablaDetalle.getValueAt(i, 1).toString());
-            int cantProdDet = Integer.parseInt(TablaDetalle.getValueAt(i, 3).toString());
-            double preProdDet = Double.parseDouble(TablaDetalle.getValueAt(i, 4).toString());
-            dv.setIdVentas(idve);
-            dv.setIdProducto(idProdDet);
-            dv.setCantidad(cantProdDet);
-            dv.setPreVenta(preProdDet);
-            vdao.GuardarDetalleVentas(dv);
+        try {
+            // Validar que haya productos en la tabla
+            if (TablaDetalle.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "No hay productos en la venta", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Obtener ID de venta usando el método que retorna int
+            int idve = VentasDAO.IdVenta();
+            if (idve <= 0) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error: No se pudo obtener el ID de venta", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Procesar cada línea de la tabla
+            for (int i = 0; i < TablaDetalle.getRowCount(); i++) {
+                int idProdDet = Integer.parseInt(TablaDetalle.getValueAt(i, 1).toString());
+                int cantProdDet = Integer.parseInt(TablaDetalle.getValueAt(i, 3).toString());
+                double preProdDet = Double.parseDouble(TablaDetalle.getValueAt(i, 4).toString());
+                
+                dv.setIdVentas(idve);
+                dv.setIdProducto(idProdDet);
+                dv.setCantidad(cantProdDet);
+                dv.setPreVenta(preProdDet);
+                
+                int resultado = vdao.GuardarDetalleVentas(dv);
+                if (resultado <= 0) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Error al guardar el detalle de la venta", 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al procesar los datos de la venta: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error inesperado: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -748,6 +838,29 @@ public final class VentasForm extends javax.swing.JInternalFrame {
             }
         }
 
+    }
+
+    private void LimpiarTabla() {
+        for (int i = 0; i < TablaDetalle.getRowCount(); i++) {
+            modelo.removeRow(i);
+            i = i - 1;
+        }
+    }
+
+    private void NuevoVenta() {
+        txtCodCliente.setText("");
+        txtCliente.setText("");
+        txtCodProd.setText("");
+        txtProducto.setText("");
+        txtPrecio.setText("");
+        txtStock.setText("");
+        txtCantidad.setValue(1);
+        txtTotalPagar.setText("");
+        txtCodCliente.requestFocus();
+        generarSerie();
+        fecha();
+        Activate.On(new Component[]{txtCodCliente, btnBuscarCliente});
+        Activate.Of(new Component[]{btnBuscarProducto, txtCodProd, btnAgregar, txtPrecio});
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

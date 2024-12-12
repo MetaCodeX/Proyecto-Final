@@ -19,7 +19,7 @@ public class ClienteDAO implements CRUD {
         try {
             PreparedStatement ps;
             ResultSet rs;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setString(1, dni);
                 rs = ps.executeQuery();
@@ -45,7 +45,7 @@ public class ClienteDAO implements CRUD {
         List<Cliente> lista = new ArrayList<>();
         String sql = "select * from cliente";
         try {
-            Connection con = Conexion.ConectarDB();
+            Connection con = Conexion.Conectar();
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -69,7 +69,7 @@ public class ClienteDAO implements CRUD {
         String sql = "insert into cliente(Dni,Nombres,Direccion,Estado)values(?,?,?,?)";
         try {
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setObject(1, o[0]);
                 ps.setObject(2, o[1]);
@@ -89,7 +89,7 @@ public class ClienteDAO implements CRUD {
         int r=0;
        String sql="update cliente set Dni=?,Nombres=?,Direccion=?,Estado=? where IdCliente=?";
         try {
-            Connection con=Conexion.ConectarDB();
+            Connection con=Conexion.Conectar();
             PreparedStatement ps=con.prepareStatement(sql);
             ps.setObject(1, o[0]);
             ps.setObject(2, o[1]);
@@ -108,7 +108,7 @@ public class ClienteDAO implements CRUD {
         String sql="delete from cliente where IdCliente=?";
         try {
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setInt(1, id);
                 ps.executeUpdate();

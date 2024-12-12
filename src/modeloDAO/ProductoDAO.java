@@ -18,7 +18,7 @@ public class ProductoDAO {
         String sql = "update producto set Stock=? where idProducto=?";
         try {
             PreparedStatement pst;
-            try (Connection conn = Conexion.ConectarDB()) {
+            try (Connection conn = Conexion.Conectar()) {
                 pst = conn.prepareStatement(sql);
                 pst.setInt(1, cant);
                 pst.setInt(2, idp);
@@ -37,7 +37,7 @@ public class ProductoDAO {
         try {
             PreparedStatement ps;
             ResultSet rs;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setInt(1, id);
                 rs = ps.executeQuery();
@@ -64,7 +64,7 @@ public class ProductoDAO {
         try {
             ResultSet rs;
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 rs = ps.executeQuery();
                 while (rs.next()) {
@@ -89,7 +89,7 @@ public class ProductoDAO {
         String sql = "insert into producto(Nombres,Precio,Stock,Estado)values(?,?,?,?)";
         try {
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setString(1, p.getNom());
                 ps.setDouble(2, p.getPre());
@@ -108,7 +108,7 @@ public class ProductoDAO {
         String sql = "update producto set Nombres=?,Precio=?,Stock=?,Estado=? where IdProducto=?";
         try {
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setString(1, p.getNom());
                 ps.setDouble(2, p.getPre());
@@ -128,7 +128,7 @@ public class ProductoDAO {
         String sql = "delete from producto where IdProducto=?";
         try {
             PreparedStatement ps;
-            try (Connection con = Conexion.ConectarDB()) {
+            try (Connection con = Conexion.Conectar()) {
                 ps = con.prepareStatement(sql);
                 ps.setInt(1, id);
                 ps.executeUpdate();

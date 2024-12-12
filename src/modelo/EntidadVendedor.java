@@ -1,24 +1,25 @@
-
 package modelo;
 
 public class EntidadVendedor {
-    int id;
-    String dni;
-    String nom;
-    String tel;
-    String estado;
-    String user;
+    private int id;
+    private String dni;
+    private String nom;
+    private String tel;
+    private String user;
+    private String password;
+    private String estado;
 
     public EntidadVendedor() {
     }
 
-    public EntidadVendedor(int id, String dni, String nom, String tel, String estado, String user) {
+    public EntidadVendedor(int id, String dni, String nom, String tel, String user, String password, String estado) {
         this.id = id;
         this.dni = dni;
         this.nom = nom;
         this.tel = tel;
-        this.estado = estado;
         this.user = user;
+        this.password = password;
+        this.estado = estado;
     }
 
     public int getId() {
@@ -53,14 +54,6 @@ public class EntidadVendedor {
         this.tel = tel;
     }
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
     public String getUser() {
         return user;
     }
@@ -68,6 +61,20 @@ public class EntidadVendedor {
     public void setUser(String user) {
         this.user = user;
     }
-    
-    
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }
